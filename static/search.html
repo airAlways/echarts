@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>2013通信工程</title>
+    <link rel="stylesheet" href="./components/css/search.css">
+    <script src="./components/jquery/jquery.min.js"></script>
+    <link rel="stylesheet" href="./components/bootstrap/dist/css/bootstrap.min.css">
+    <script src="./components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="./components/js/echarts.min.js"></script>
+</head>
+<body>
+<div class="wrap">
+    <div class="loading" id="loading">
+        <div class="spinner">
+            <div class="dot1"></div>
+            <div class="dot2"></div>
+        </div>
+    </div>
+    <div class="header">
+        <div class="logo"></div>
+        <div class="title">通信工程系2013级毕设知识图谱</div>
+        <div class="author">
+            Made by 张腾飞
+        </div>
+    </div>
+    <div class="content">
+        <div class="left">
+            <p class="glyphicon glyphicon-search">查询</p>
+            <input type="text" class="form-control" placeholder="老师或学生姓名" aria-describedby="basic-addon1"  id="Name">
+            <div class="btn btn-primary" onclick = "search()">搜索</div>
+            <div id="result"></div>
+        </div>
+        <div class="right">
+            <canvas id="canvas1" style="position:absolute;top:0px;left:0px;z-index:-1;background: #000;"></canvas>
+            <div id="main">
+                <!--//Echarts 容器-->
+            </div>
+        </div>
+    </div>
+</div>
+<script src="./components/js/backgroundset.js"></script>
+<!--<script src="./components/js/person.js"></script>-->
+<script>
+    var graph = {};
+    var ajaxData = [];
+    // 基于准备好的dom，初始化echarts实例
+    var chart = echarts.init(document.getElementById('main'));
+    //首次进入页面加载全部关系
+    $.ajax({
+        async: false, //同步方式
+        type: 'get',
+        url: 'http://localhost:7070/findNodeByName?name=',
+        data: {},
+        dataType: 'json',
+        success: function (result) {
+            ajaxData = result;
+        },
+    });
+    graph.nodes = getNodes(ajaxData);
+    graph.links = getLinks(ajaxData);
+    //结点分类   显示图例
+    graph.categories = [
+        {name: '院系'},
+        {name: '教师'},
+        {name: '学生'}
+    ];
+    //设置关系结点标记的大小
+    graph.nodes.forEach(function (node) {
+        node.symbolSize = node.value*10;
+    });
+
+    var option = {
+        title:{
+            text: '',           //标题
+            subtext: '',        //副标题
+            top: 'top',         //相对于Y轴位置
+            left: 'center'      //相对于X轴位置
+        },
+        tooltip: {
+            //提示框，鼠标悬浮交互时的信息提示
+            trigger: 'item',    //数据触发类型
+            formatter: function (params) {
+                //触发之后返回的参数
+                if(params.data.category != undefined){
+                    //如果触发节点,返回教师简介或学生毕设题目
+                    return params.data.title;
+                }else {
+                    //如果触发边，返回关系
+                    return params.data.label;
+                }
+            }
+        },
+        toolbox: {
+            //工具箱
+            show: true,
+            feature: {
+                //dataView数据视图,readOnly 默认数据视图为只读(即值为true)，false打开编辑功能
+                dataView: {show: true, readOnly: true},
+                //restore，还原，复位原始图表
+                restore : {show: true},
+                //saveAsImage，保存图片
+                saveAsImage : {show: true}
+            }
+        },
+        color:['rgb(194,53,49)','rgb(178,144,137)','rgb(97,160,168)'],
+        legend: [{
+            x: 'left',     //图例位置
+            //图例的名称
+            data: graph.categories.map(function (a) {
+                return a.name;
+            })
+        }],
+        series: [{
+            //设置图表数据
+            name: '人物关系可视化图表',
+            type: 'graph',              //图表类型
+            layout: 'force',            //力引导布局
+            legendHoverLink: true,      //启用图例 hover 时的联动高亮。
+            draggable: true,            //结点是否可以拖动
+            animation: true,            //开启动画
+            nodes: graph.nodes,          //结点数据
+            links: graph.links,         //联系，关系数据
+            categories: graph.categories,//结点种类
+            focusNodeAdjaceny: true,     //当鼠标移动到节点上，突出显示节点以及节点的边和邻接节点
+            roam: true,                  //是否开启鼠标缩放和平移漫游。默认不开启。如果只想要开启缩放或者平移，可以设置成 'scale' 或者 'move'。设置成 true 为都开启
+            edgeSymbol: ['circle', 'arrow'],//边两端的标记类型
+            edgeSymbolSize: [4, 10],        //边两端的标记大小
+            label: {
+                //图形上的文本标签
+                normal: {
+                    show: true,
+                    position: 'right',   //相对于结点标签位置
+                    formatter:function (params) {
+                        return params.data.label;
+                    }
+                }
+            },
+            itemStyle: {
+                //结点样式
+                normal: {
+                    opacity: 0.9
+                }
+            },
+            lineStyle: {
+                normal: {
+                    show: true,
+                    type : 'solid', //线的类型 'solid'（实线）'dashed'（虚线）'dotted'（点线）
+                    width: 2,
+                    color: 'rgba(255,255,255,0.4)', //决定边的颜色是与起点相同还是与终点相同,也可以写RGB
+                    curveness: 0.1//边的曲度，支持从 0 到 1 的值，值越大曲度越大。
+                }
+            },
+            force: {
+                edgeLength: [80,120,160,200],  //线的长度
+                repulsion: 120 //结点之间的斥力因子
+            }
+        }]
+    };
+    chart.setOption(option);
+    console.log($('#loading'))
+    $('#loading').hide();
+    //点击按钮 查询函数
+    function search() {
+        var name =  document.getElementById("Name").value;
+        $.ajax({
+            async: false, //同步方式
+            type: 'get',
+            url: 'http://localhost:7070/findNodeByName?name='+name,
+            data: {},
+            dataType: 'json',
+            success: function (result) {
+                if(result.length > 0){
+                    ajaxData = result;
+                    console.log(ajaxData);
+                    nodes = getNodes(ajaxData);
+                    links = getLinks(ajaxData);
+                    nodes.forEach(function (node) {
+                        node.symbolSize = node.value*10;
+                    });
+                    option.series[0].nodes = nodes;
+                    option.series[0].links = links;
+                    chart.setOption(option);
+                }else {
+                    alert("数据查询失败");
+                }
+
+            }
+        })
+    }
+    //获取结点函数
+    function getNodes(data) {
+        var nodes = new Array();
+        for( var i = 0; i < data.length; i++){
+            var node = {
+                //id: data[i].id,                 //数据库中的id，这里不确定能不能用的上
+                category: data[i].category,     //结点分类
+                name: data[i].name.toString(),             //关系连接的关键字
+                value: data[i].value,           //结点的值，设置结点半径与该值的关系
+                label: data[i].label,           //显示结点标签
+                title: data[i].title            //教师结点为教师简介，学生结点为学生论文题目
+            };
+            nodes.push(node);                   //把for循环出的结点添加到数组的最后
+        }
+        return nodes;
+    }
+    //获取关系函数
+    function getLinks(data) {
+        //会取到id，不确定是不是要去掉id值
+        var linkArr = new Array();
+        for(i in data){
+            var links = data[i].links;
+            for(var j = 0; j < links.length; j++){
+                var link = {
+                    source: links[j].source.toString(),
+                    target: links[j].target.toString(),
+                    value: links[j].value,
+                    label: links[j].label
+                };
+                linkArr.push(link);
+                //关系数*2
+            }
+        }
+        return linkArr;
+    };
+
+    /*
+    * name source target 必须为string 不然就会当作index 来处理
+    * */
+</script>
+</body>
+</html>
+

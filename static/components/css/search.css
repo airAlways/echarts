@@ -1,0 +1,135 @@
+*{
+    margin:0;
+    padding:0;
+    text-decoration: none;
+    font-family: "Microsoft YaHei UI";
+    color: #777;
+}
+html,body{
+    width:100%;
+    height:100%;
+}
+.wrap{
+    width: 100%;
+    height:100%;
+    /*position: relative;*/
+    overflow: hidden;
+}
+.loading{
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: 10;
+
+    background: rgba(204,204,204,0.2);
+}
+.spinner {
+    margin: 250px auto;
+    width: 90px;
+    height: 90px;
+    position: relative;
+    text-align: center;
+
+    -webkit-animation: rotate 2.0s infinite linear;
+    animation: rotate 2.0s infinite linear;
+}
+
+.dot1, .dot2 {
+    width: 60%;
+    height: 60%;
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    background-color: #ccc;
+    border-radius: 100%;
+
+    -webkit-animation: bounce 2.0s infinite ease-in-out;
+    animation: bounce 2.0s infinite ease-in-out;
+}
+
+.dot2 {
+    top: auto;
+    bottom: 0px;
+    -webkit-animation-delay: -1.0s;
+    animation-delay: -1.0s;
+}
+
+@-webkit-keyframes rotate { 100% { -webkit-transform: rotate(360deg) }}
+@keyframes rotate { 100% { transform: rotate(360deg); -webkit-transform: rotate(360deg) }}
+
+@-webkit-keyframes bounce {
+    0%, 100% { -webkit-transform: scale(0.0) }
+    50% { -webkit-transform: scale(1.0) }
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: scale(0.0);
+        -webkit-transform: scale(0.0);
+    } 50% {
+          transform: scale(1.0);
+          -webkit-transform: scale(1.0);
+      }
+}
+.header{
+    width:100%;
+    height:12%;
+    background: #eee;
+    border:1px dashed #eee;
+}
+.logo{
+    height:100%;
+    z-index:1;
+    background-image: url("../img/logo.png");
+    background-size:contain;
+    background-repeat: no-repeat;
+}
+.title{
+    font-size: 1.8em;
+    font-style: normal;
+    position: absolute;
+    top:4%;
+    left:36%;
+    color:#777;
+}
+.author{
+    font-size: 1em;
+    position: absolute;
+    top:8%;
+    right:2%;
+    color: #888;
+}
+
+.content{
+    width:100%;
+    height: 88%;
+}
+.left{
+    width:15%;
+    height: 100%;
+    background: #eee;
+    float: left;
+    padding: 25px;
+}
+.left p {
+    width:100%;
+    height: 36px;
+    line-height: 36px;
+    font-size: 24px;
+    text-align: center;
+}
+.btn-primary{
+    width:100%;
+    margin:10px auto;
+}
+
+.right{
+    float: right;
+    width: 85%;
+    height:100%;
+    position: relative;
+}
+#main{
+    width: 100%;
+    height:100%;
+}

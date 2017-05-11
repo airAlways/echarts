@@ -1,0 +1,19 @@
+{
+  "name": "echarts",
+  "description": "knowledge",
+  "main": "index.js",
+  "license": "ISC",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "./static/components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "1.9.1",
+    "bootstrap": "^3.3.7"
+  }
+}
